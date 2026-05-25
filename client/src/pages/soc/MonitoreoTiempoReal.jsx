@@ -1,103 +1,76 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { obtenerSolicitudes } from '../../dbLocal';
 
 export default function MonitoreoTiempoReal() {
-  const [accesosActivos, setAccesosActivos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [solicitudes, setSolicitudes] = useState([]);
 
-  const fetchActivos = async () => {
-    try {
-      const res = await fetch('http://localhost:5000/api/requests/pending');
-      const data = await res.json();
-      // El SOC solo monitorea a quienes ya están físicamente dentro
-      setAccesosActivos(data.filter(s => s.estado === 'En uso'));
-    } catch (err) {
-      console.error("Error cargando accesos:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    // Simular actualización en tiempo real leyendo cada 3 segundos
+    const intervalo = setInterval(() => {
+      setSolicitudes(obtenerSolicitudes());
+    }, 3000);
 
-  useEffect(() => { fetchActivos(); }, []);
+    setSolicitudes(obtenerSolicitudes());
 
-  // Función para manejar las Excepciones 5 y 6
-  const reportarIncidencia = async (id, tipoAnomalia) => {
-    const confirmar = window.confirm(`¿Confirmar alerta de seguridad: ${tipoAnomalia}?`);
-    if (!confirmar) return;
+    return () => clearInterval(intervalo);
+  }, []);
 
-    // Lógica del negocio: 
-    // Excepción 5 -> Finalizada con incidencia
-    // Excepción 6 -> Revocado inmediatamente
-    const nuevoEstado = tipoAnomalia === 'Apertura de rack no autorizado' ? 'Revocado' : 'Finalizada con incidencia';
-
-    try {
-      const res = await fetch(`http://localhost:5000/api/requests/${id}/review`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          estado: nuevoEstado, 
-          condiciones: `🚨 INCIDENCIA SOC: ${tipoAnomalia}` 
-        })
-      });
-
-      if (res.ok) {
-        alert(`Incidencia registrada y escalada. Estado actual: ${nuevoEstado}`);
-        fetchActivos(); // Limpiamos al infractor de la vista activa
-      } else {
-        alert("Error al comunicarse con el servidor.");
-      }
-    } catch (error) {
-      alert("Error de red: " + error.message);
-    }
-  };
-
-  if (loading) return <div className="text-white">Conectando con cámaras y sensores...</div>;
+  // Calcular métricas rápidas
+  const pendientes = solicitudes.filter(s => s.estado === 'Pendiente').length;
+  const enSala = solicitudes.filter(s => s.estado === 'Dentro').length;
+  const finalizados = solicitudes.filter(s => s.estado === 'Finalizado').length;
 
   return (
-    <div className="max-w-5xl mx-auto bg-slate-900 text-white p-6 rounded-lg shadow-xl border-l-4 border-rose-600">
-      <div className="mb-6 flex justify-between items-center border-b border-slate-700 pb-4">
-        <div>
-          <h2 className="text-2xl font-bold text-rose-500 flex items-center gap-2">
-            <span className="animate-pulse">🔴</span> SOC: Monitoreo en Tiempo Real
-          </h2>
-          <p className="text-sm text-slate-400">Vigilancia de accesos en estado "En uso"</p>
+    <div className="text-white">
+      <h2 className="text-2xl mb-2 font-bold">Monitoreo en Tiempo Real (SOC)</h2>
+      <p className="text-slate-400 mb-6">Consola de supervisión de incidentes y estado del Data Center.</p>
+
+      {/* Tarjetas de Indicadores Rápidos */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="bg-slate-900 p-4 rounded-lg border border-slate-800">
+          <p className="text-sm text-slate-400 font-medium">Por Autorizar</p>
+          <p className="text-3xl font-bold text-yellow-500 mt-1">{pendientes}</p>
+        </div>
+        <div className="bg-slate-900 p-4 rounded-lg border border-slate-800">
+          <p className="text-sm text-slate-400 font-medium">Personal en Sala (Activo)</p>
+          <p className="text-3xl font-bold text-green-400 mt-1">{enSala}</p>
+        </div>
+        <div className="bg-slate-900 p-4 rounded-lg border border-slate-800">
+          <p className="text-sm text-slate-400 font-medium">Accesos Concluidos</p>
+          <p className="text-3xl font-bold text-blue-400 mt-1">{finalizados}</p>
         </div>
       </div>
 
-      {accesosActivos.length === 0 ? (
-        <div className="bg-slate-800 text-center p-8 rounded border border-slate-700 text-emerald-400 font-medium">
-          Operación normal. No hay personal en zonas restringidas.
-        </div>
-      ) : (
-        <div className="grid gap-4">
-          {accesosActivos.map(s => (
-            <div key={s.id} className="bg-slate-800 p-4 rounded border border-slate-600 flex flex-col md:flex-row justify-between items-center gap-4">
-              <div>
-                <span className="text-xs font-mono bg-blue-900 text-blue-200 px-2 py-1 rounded">ID: {s.id}</span>
-                <p className="font-bold text-lg mt-2">{s.solicitante}</p>
-                <p className="text-sm text-slate-400">Interviniendo: <span className="text-white font-medium">{s.zona}</span></p>
-                <p className="text-xs text-slate-500 mt-1">Límite de tiempo: {s.hora_fin}</p>
-              </div>
+      {/* Registro de Actividad General */}
+      <div className="bg-slate-900 p-6 rounded-lg border border-slate-800">
+        <h3 className="text-lg font-bold mb-4">Bitácora Global de Accesos</h3>
+        <div className="divide-y divide-slate-800 max-h-96 overflow-y-auto">
+          {solicitudes.length === 0 ? (
+            <p className="text-slate-500 py-4 text-center">No se registran operaciones en el sistema.</p>
+          ) : null}
 
-              <div className="flex flex-col gap-2 w-full md:w-auto">
-                <p className="text-xs text-slate-400 mb-1">Simular Anomalías:</p>
-                <button 
-                  onClick={() => reportarIncidencia(s.id, 'Permanencia fuera del horario autorizado')}
-                  className="bg-amber-600 hover:bg-amber-700 text-white text-xs px-4 py-2 rounded font-medium transition-colors w-full"
-                >
-                  ⏱️ Excepción 5: Exceso de Tiempo
-                </button>
-                <button 
-                  onClick={() => reportarIncidencia(s.id, 'Apertura de rack no autorizado')}
-                  className="bg-rose-600 hover:bg-rose-700 text-white text-xs px-4 py-2 rounded font-medium transition-colors w-full"
-                >
-                  🚪 Excepción 6: Abrir rack indebido
-                </button>
+          {[...solicitudes].reverse().map(sol => (
+            <div key={sol.id} className="py-3 flex justify-between items-center">
+              <div>
+                <span className="text-sm font-medium text-slate-200">{sol.solicitante}</span>
+                <p className="text-xs text-slate-500">Motivo: {sol.motivo}</p>
+              </div>
+              <div className="text-right">
+                <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
+                  sol.estado === 'Dentro' ? 'bg-green-950 text-green-400 border border-green-800' :
+                  sol.estado === 'Aprobado' ? 'bg-blue-950 text-blue-400 border border-blue-900' :
+                  sol.estado === 'Rechazado' ? 'bg-red-950 text-red-400 border border-red-900' :
+                  sol.estado === 'Finalizado' ? 'bg-slate-800 text-slate-400' :
+                  'bg-yellow-950 text-yellow-400 border border-yellow-900'
+                }`}>
+                  {sol.estado}
+                </span>
+                <p className="text-[10px] text-slate-600 mt-1">{sol.fecha || 'Reciente'}</p>
               </div>
             </div>
           ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }

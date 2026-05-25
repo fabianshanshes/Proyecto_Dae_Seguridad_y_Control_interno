@@ -1,62 +1,63 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { obtenerSolicitudes, actualizarEstadoSolicitud } from '../../dbLocal';
 
 export default function ControlGuardia() {
   const [solicitudes, setSolicitudes] = useState([]);
 
-  const fetchAprobadas = async () => {
-    // Aquí traeríamos solo las 'Aprobada'
-    const res = await fetch('http://localhost:5000/api/requests/pending');
-    const data = await res.json();
-    setSolicitudes(data.filter(s => s.estado === 'Aprobada'));
+  useEffect(() => {
+    setSolicitudes(obtenerSolicitudes());
+  }, []);
+
+  const cambiarEstado = (id, nuevoEstado) => {
+    actualizarEstadoSolicitud(id, nuevoEstado);
+    setSolicitudes(obtenerSolicitudes()); // Recargar cambios
   };
 
-  useEffect(() => { fetchAprobadas(); }, []);
-
-  const handleCheckIn = async (id) => {
-    const tieneCedula = window.confirm("¿El solicitante presentó su cédula de identidad física?");
-    
-    const res = await fetch(`http://localhost:5000/api/requests/${id}/check-in`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tieneCedulaFisica: tieneCedula })
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      alert("Acceso Habilitado: " + data.msg);
-      fetchAprobadas();
-    } else {
-      alert("Error: " + data.motivo);
-    }
-  };
+  // Filtrar solo lo que le interesa al guardia
+  const solicitudesRelevantes = solicitudes.filter(
+    sol => sol.estado === 'Aprobado' || sol.estado === 'Dentro'
+  );
 
   return (
-    <div className="p-6 bg-slate-900 text-white rounded-lg border border-slate-700">
-      <h2 className="text-2xl font-bold mb-4 text-sky-400">Control de Acceso Físico</h2>
-      <table className="w-full text-left">
-        <thead>
-          <tr className="text-slate-400">
-            <th className="p-2">Solicitante</th>
-            <th className="p-2">Acción</th>
-          </tr>
-        </thead>
-        <tbody>
-          {solicitudes.map(s => (
-            <tr key={s.id} className="border-t border-slate-800">
-              <td className="p-2">{s.solicitante}</td>
-              <td className="p-2">
-                <button 
-                  onClick={() => handleCheckIn(s.id)}
-                  className="bg-blue-600 px-4 py-1 rounded hover:bg-blue-500"
+    <div className="text-white">
+      <h2 className="text-2xl mb-2 font-bold">Control de Acceso Físico (Guardia)</h2>
+      <p className="text-slate-400 mb-6">Registro de ingresos y salidas en el punto de control.</p>
+
+      <div className="grid gap-4">
+        {solicitudesRelevantes.length === 0 ? (
+          <p className="text-slate-500 bg-slate-900 p-4 rounded border border-slate-800 text-center">
+            No hay personal autorizado esperando ingreso o salida en este momento.
+          </p>
+        ) : null}
+
+        {solicitudesRelevantes.map(sol => (
+          <div key={sol.id} className="bg-slate-800 p-4 rounded border border-slate-700 flex justify-between items-center">
+            <div>
+              <p className="text-lg font-semibold">{sol.solicitante}</p>
+              <p className="text-sm text-slate-400">Motivo: {sol.motivo}</p>
+              <p className="text-xs text-slate-500 mt-1">ID Registro: {sol.id}</p>
+            </div>
+
+            <div>
+              {sol.estado === 'Aprobado' ? (
+                <button
+                  onClick={() => cambiarEstado(sol.id, 'Dentro')}
+                  className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded font-medium transition-colors"
                 >
-                  Registrar Ingreso
+                  Registrar Entrada
                 </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              ) : (
+                <button
+                  onClick={() => cambiarEstado(sol.id, 'Finalizado')}
+                  className="bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded font-medium transition-colors"
+                >
+                  Registrar Salida
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
