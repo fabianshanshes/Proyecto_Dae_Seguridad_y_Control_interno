@@ -5,6 +5,14 @@ async function getAll() {
   return rows;
 }
 
+async function getPending() {
+  const [rows] = await db.query(
+    'SELECT * FROM solicitudes WHERE estado IN (?, ?) ORDER BY creado_en DESC',
+    ['En revision', 'Observada']
+  );
+  return rows;
+}
+
 async function getById(id) {
   const [rows] = await db.query('SELECT * FROM solicitudes WHERE id = ?', [id]);
   return rows[0];
@@ -21,15 +29,26 @@ async function create(solicitud) {
 }
 
 async function updateEstado(id, estado, condiciones = null) {
-  const [result] = await db.query(
-    'UPDATE solicitudes SET estado = ?, condiciones = ? WHERE id = ?',
-    [estado, condiciones, id]
-  );
+  let result;
+
+  if (condiciones === undefined) {
+    [result] = await db.query(
+      'UPDATE solicitudes SET estado = ? WHERE id = ?',
+      [estado, id]
+    );
+  } else {
+    [result] = await db.query(
+      'UPDATE solicitudes SET estado = ?, condiciones = ? WHERE id = ?',
+      [estado, condiciones, id]
+    );
+  }
+
   return result.affectedRows > 0;
 }
 
 module.exports = {
   getAll,
+  getPending,
   getById,
   create,
   updateEstado

@@ -1,8 +1,9 @@
-const db = require('../config/db');
+const ModeloIncidencia = require('../models/Modelo_Incidencia.js');
+const ModeloAcceso = require('../models/Modelo_Acceso.js');
 
 const getAll = async (req, res, next) => {
   try {
-    const [incidencias] = await db.query('SELECT * FROM incidencias ORDER BY registrado_en DESC');
+    const incidencias = await ModeloIncidencia.getAll();
     res.json(incidencias);
   } catch (error) {
     next(error);
@@ -12,24 +13,47 @@ const getAll = async (req, res, next) => {
 const createIncident = async (req, res, next) => {
   try {
     const { solicitud_id, tipo_incidente, severidad } = req.body;
-    
-    // Insertamos la alerta de seguridad en la base de datos
-    const [result] = await db.query(
-      'INSERT INTO incidencias (solicitud_id, tipo_incidente, severidad) VALUES (?, ?, ?)',
-      [solicitud_id, tipo_incidente, severidad || 'Media']
-    );
-    
-    // Opcional: Actualizamos el estado de la solicitud a "Con incidencia"
-    await db.query('UPDATE solicitudes SET estado = ? WHERE id = ?', ['Finalizada con incidencia', solicitud_id]);
 
-    res.status(201).json({ msg: 'Incidencia registrada en el sistema', id: result.insertId });
+    const solicitud = await ModeloAcceso.getById(solicitud_id);
+    if (!solicitud) {
+      return res.status(404).json({ msg: 'Solicitud no encontrada para registrar la incidencia' });
+    }
+
+    const incidencia = await ModeloIncidencia.create({
+      solicitud_id,
+      tipo_incidente,
+      severidad
+    });
+
+    await ModeloAcceso.updateEstado(solicitud_id, 'Finalizada con incidencia', undefined);
+
+    res.status(201).json({
+      msg: 'Incidencia registrada en el sistema',
+      incidencia
+    });
   } catch (error) {
     next(error);
   }
 };
 
 const escalate = async (req, res, next) => {
-  res.json({ msg: 'Endpoint para escalar incidencias pendiente de implementación' });
+  try {
+    const { id } = req.params;
+
+    const incidencia = await ModeloIncidencia.getById(id);
+    if (!incidencia) {
+      return res.status(404).json({ msg: 'Incidencia no encontrada' });
+    }
+
+    const actualizado = await ModeloIncidencia.updateEstado(id, 'Registrada');
+    if (!actualizado) {
+      return res.status(500).json({ msg: 'No se pudo actualizar la incidencia' });
+    }
+
+    res.json({ msg: 'Incidencia escalada correctamente' });
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports = {

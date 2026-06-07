@@ -1,0 +1,90 @@
+@baseUrl = http://localhost:5000
+@requestId = 1
+@incidentId = 1
+
+### Root
+GET {{baseUrl}}/
+
+### Health
+GET {{baseUrl}}/health
+
+### Crear solicitud
+POST {{baseUrl}}/api/requests
+Content-Type: application/json
+
+{
+  "solicitante": "Juan Perez",
+  "motivo": "Mantenimiento de servidor",
+  "zona": "Sala 2 - Rack B3",
+  "fecha": "2026-06-07",
+  "hora_inicio": "09:00:00",
+  "hora_fin": "11:00:00"
+}
+
+### Crear solicitud observada
+POST {{baseUrl}}/api/requests
+Content-Type: application/json
+
+{
+  "solicitante": "Ana Torres",
+  "motivo": "Revision de cableado",
+  "fecha": "2026-06-07",
+  "hora_inicio": "14:00:00",
+  "hora_fin": "15:30:00"
+}
+
+### Listar solicitudes pendientes
+GET {{baseUrl}}/api/requests/pending
+
+### Aprobar solicitud
+PUT {{baseUrl}}/api/requests/{{requestId}}/review
+Content-Type: application/json
+
+{
+  "estado": "Aprobada",
+  "condiciones": "Acompanamiento obligatorio"
+}
+
+### Observar solicitud
+PUT {{baseUrl}}/api/requests/{{requestId}}/review
+Content-Type: application/json
+
+{
+  "estado": "Observada",
+  "condiciones": "Completar zona de acceso"
+}
+
+### Check-in autorizado
+PUT {{baseUrl}}/api/requests/{{requestId}}/check-in
+Content-Type: application/json
+
+{
+  "tieneCedulaFisica": true
+}
+
+### Check-in bloqueado por no portar cedula
+PUT {{baseUrl}}/api/requests/{{requestId}}/check-in
+Content-Type: application/json
+
+{
+  "tieneCedulaFisica": false
+}
+
+### Check-out
+PUT {{baseUrl}}/api/requests/{{requestId}}/check-out
+
+### Listar incidencias
+GET {{baseUrl}}/api/incidents
+
+### Crear incidencia
+POST {{baseUrl}}/api/incidents
+Content-Type: application/json
+
+{
+  "solicitud_id": {{requestId}},
+  "tipo_incidente": "Permanencia fuera de horario",
+  "severidad": "Alta"
+}
+
+### Escalar incidencia
+PUT {{baseUrl}}/api/incidents/{{incidentId}}/escalate
