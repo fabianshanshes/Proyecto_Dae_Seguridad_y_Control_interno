@@ -10,6 +10,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (req, res) => {
+    res.json({
+        ok: true,
+        message: 'API de Control Interno activa'
+    });
+});
+
+app.get('/health', (req, res) => {
+    res.json({
+        ok: true,
+        status: 'up'
+    });
+});
+
 app.use('/api', accesoRoutes);
 app.use('/api', incidenciaRoutes);
 

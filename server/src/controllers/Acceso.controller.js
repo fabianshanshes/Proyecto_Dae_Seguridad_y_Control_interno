@@ -2,7 +2,7 @@ const ModeloAcceso = require('../models/Modelo_Acceso.js');
 
 const getPending = async (req, res, next) => {
   try {
-    const solicitudes = await ModeloAcceso.getAll();
+    const solicitudes = await ModeloAcceso.getPending();
     res.json(solicitudes);
   } catch (error) {
     next(error);
@@ -37,7 +37,7 @@ const reviewRequest = async (req, res, next) => {
     const { id } = req.params;
     const { estado, condiciones } = req.body;
     
-    const actualizado = await ModeloAcceso.updateEstado(id, estado, condiciones);
+    const actualizado = await ModeloAcceso.updateEstado(id, estado, condiciones ?? null);
     if (!actualizado) {
       return res.status(404).json({ msg: 'Solicitud no encontrada' });
     }
@@ -67,7 +67,7 @@ const checkIn = async (req, res, next) => {
         }
 
         // Todo OK, se cambia a 'En uso'
-        await ModeloAcceso.updateEstado(id, 'En uso');
+        await ModeloAcceso.updateEstado(id, 'En uso', undefined);
         res.json({ msg: 'Ingreso autorizado', solicitud: { ...solicitud, estado: 'En uso' } });
     } catch (error) {
         next(error);
@@ -77,8 +77,21 @@ const checkIn = async (req, res, next) => {
 const checkOut = async (req, res, next) => {
   try {
     const { id } = req.params;
-    await ModeloAcceso.updateEstado(id, 'Finalizada');
+    const actualizado = await ModeloAcceso.updateEstado(id, 'Finalizada', undefined);
+    if (!actualizado) {
+      return res.status(404).json({ msg: 'Solicitud no encontrada' });
+    }
+
     res.json({ msg: 'Salida registrada y solicitud finalizada' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getActive = async (req, res, next) => {
+  try {
+    const activas = await ModeloAcceso.getByStatus('En uso');
+    res.json(activas);
   } catch (error) {
     next(error);
   }
@@ -89,5 +102,6 @@ module.exports = {
   getPending,
   reviewRequest,
   checkIn,
-  checkOut
+  checkOut,
+  getActive
 };

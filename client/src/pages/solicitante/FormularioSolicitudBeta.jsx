@@ -27,8 +27,7 @@ export default function FormularioSolicitud() {
     setError(null);
 
     try {
-      // Conexión con el endpoint del Backend
-      const response = await fetch('http://localhost:3000/api/requests', {
+      const response = await fetch('http://localhost:5000/api/requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -20,37 +20,36 @@ export default function MonitoreoTiempoReal() {
 
   useEffect(() => { fetchActivos(); }, []);
 
-  // Función para manejar las Excepciones 5 y 6
   const reportarIncidencia = async (id, tipoAnomalia) => {
     const confirmar = window.confirm(`¿Confirmar alerta de seguridad: ${tipoAnomalia}?`);
     if (!confirmar) return;
 
-    // Lógica del negocio: 
-    // Excepción 5 -> Finalizada con incidencia
-    // Excepción 6 -> Revocado inmediatamente
-    const nuevoEstado = tipoAnomalia === 'Apertura de rack no autorizado' ? 'Revocado' : 'Finalizada con incidencia';
+    const severidad = tipoAnomalia === 'Apertura de rack no autorizado' ? 'Critica' : 'Alta';
 
     try {
-      const res = await fetch(`http://localhost:5000/api/requests/${id}/review`, {
-        method: 'PUT',
+      const res = await fetch('http://localhost:5000/api/incidents', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          estado: nuevoEstado, 
-          condiciones: `🚨 INCIDENCIA SOC: ${tipoAnomalia}` 
+        body: JSON.stringify({
+          solicitud_id: id,
+          tipo_incidente: tipoAnomalia,
+          severidad: severidad
         })
       });
 
+      const data = await res.json();
+      
       if (res.ok) {
-        alert(`Incidencia registrada y escalada. Estado actual: ${nuevoEstado}`);
-        fetchActivos(); // Limpiamos al infractor de la vista activa
+        alert("🚨 Alerta registrada: " + data.msg);
+        fetchActivos(); 
       } else {
-        alert("Error al comunicarse con el servidor.");
+        alert("Error: " + (data.msg || data.error));
       }
-    } catch (error) {
-      alert("Error de red: " + error.message);
+    } catch (err) {
+      console.error("Error al registrar incidencia:", err);
+      alert("Fallo de conexión con el servidor SOC");
     }
   };
-
   if (loading) return <div className="text-white">Conectando con cámaras y sensores...</div>;
 
   return (
@@ -85,13 +84,13 @@ export default function MonitoreoTiempoReal() {
                   onClick={() => reportarIncidencia(s.id, 'Permanencia fuera del horario autorizado')}
                   className="bg-amber-600 hover:bg-amber-700 text-white text-xs px-4 py-2 rounded font-medium transition-colors w-full"
                 >
-                  ⏱️ Excepción 5: Exceso de Tiempo
+                  ⏱️ Excepción 1: Exceso de Tiempo
                 </button>
                 <button 
                   onClick={() => reportarIncidencia(s.id, 'Apertura de rack no autorizado')}
                   className="bg-rose-600 hover:bg-rose-700 text-white text-xs px-4 py-2 rounded font-medium transition-colors w-full"
                 >
-                  🚪 Excepción 6: Abrir rack indebido
+                  🚪 Excepción 2: Abrir rack indebido
                 </button>
               </div>
             </div>
