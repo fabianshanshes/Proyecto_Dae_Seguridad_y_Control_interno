@@ -88,10 +88,20 @@ const checkOut = async (req, res, next) => {
   }
 };
 
+const getActive = async (req, res, next) => {
+  try {
+    const activas = await ModeloAcceso.getByStatus('En uso');
+    res.json(activas);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createRequest,
   getPending,
   reviewRequest,
   checkIn,
-  checkOut
+  checkOut,
+  getActive
 };

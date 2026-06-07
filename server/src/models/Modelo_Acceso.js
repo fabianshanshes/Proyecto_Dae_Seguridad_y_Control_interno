@@ -7,8 +7,8 @@ async function getAll() {
 
 async function getPending() {
   const [rows] = await db.query(
-    'SELECT * FROM solicitudes WHERE estado IN (?, ?) ORDER BY creado_en DESC',
-    ['En revision', 'Observada']
+    'SELECT * FROM solicitudes WHERE estado IN (?, ?, ?, ?) ORDER BY creado_en DESC',
+    ['En revision', 'Observada', 'Aprobada', 'En uso'] 
   );
   return rows;
 }

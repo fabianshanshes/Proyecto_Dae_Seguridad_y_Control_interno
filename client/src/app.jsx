@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
-import FormularioSolicitud from './pages/solicitante/FormularioSolicitud'; 
-import PanelAprobaciones from './pages/autorizador/PanelAprobaciones';
-import ControlGuardia from './pages/guardia/ControlGuardia';
-import MonitoreoTiempoReal from './pages/soc/MonitoreoTiempoReal';
+import FormularioSolicitud from './pages/solicitante/FormularioSolicitudBeta'; 
+import PanelAprobaciones from './pages/autorizador/PanelAprobacionesBeta';
+import ControlGuardia from './pages/guardia/ControlGuardiaBeta';
+import MonitoreoTiempoReal from './pages/soc/MonitoreoTiempoRealBeta';
 
 function App() {
   return (
