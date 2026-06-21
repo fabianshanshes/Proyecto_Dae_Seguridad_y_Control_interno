@@ -11,10 +11,10 @@ async function getById(id) {
 }
 
 async function create(incidencia) {
-  const { solicitud_id, tipo_incidente, severidad = 'Media' } = incidencia;
+  const { solicitud_id, tipo_incidente, severidad = 'Media', observaciones = null } = incidencia;
   const [result] = await db.query(
-    'INSERT INTO incidencias (solicitud_id, tipo_incidente, severidad) VALUES (?, ?, ?)',
-    [solicitud_id, tipo_incidente, severidad]
+    'INSERT INTO incidencias (solicitud_id, tipo_incidente, severidad, observaciones) VALUES (?, ?, ?, ?)',
+    [solicitud_id, tipo_incidente, severidad, observaciones]
   );
 
   return {
@@ -22,6 +22,7 @@ async function create(incidencia) {
     solicitud_id,
     tipo_incidente,
     severidad,
+    observaciones,
     estado: 'Detectada'
   };
 }

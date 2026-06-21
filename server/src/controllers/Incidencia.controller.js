@@ -12,7 +12,7 @@ const getAll = async (req, res, next) => {
 
 const createIncident = async (req, res, next) => {
   try {
-    const { solicitud_id, tipo_incidente, severidad } = req.body;
+    const { solicitud_id, tipo_incidente, severidad, observaciones } = req.body;
 
     const solicitud = await ModeloAcceso.getById(solicitud_id);
     if (!solicitud) {
@@ -22,7 +22,8 @@ const createIncident = async (req, res, next) => {
     const incidencia = await ModeloIncidencia.create({
       solicitud_id,
       tipo_incidente,
-      severidad
+      severidad,
+      observaciones
     });
 
     await ModeloAcceso.updateEstado(solicitud_id, 'Finalizada con incidencia', undefined);

@@ -66,6 +66,13 @@ const checkIn = async (req, res, next) => {
             return res.status(400).json({ status: 'Denegado', motivo: 'Acceso no autorizado por el sistema' });
         }
 
+        // NOTA: la validación de ventana horaria (Excepción 2) se desactivó
+        // a propósito mientras el sistema está en fase de prototipo/pruebas,
+        // para que el guardia pueda registrar el check-in a cualquier hora
+        // y así probar el flujo completo
+        // El proceso de expiración automática (expireOverdue) sigue activo
+        // y puede reactivarse esta validación más adelante si se requiere.
+
         // Todo OK, se cambia a 'En uso'
         await ModeloAcceso.updateEstado(id, 'En uso', undefined);
         res.json({ msg: 'Ingreso autorizado', solicitud: { ...solicitud, estado: 'En uso' } });
@@ -97,11 +104,38 @@ const getActive = async (req, res, next) => {
   }
 };
 
+// Lista las solicitudes hechas por un solicitante específico (para "Mis Permisos")
+const getMine = async (req, res, next) => {
+  try {
+    const { solicitante } = req.query;
+    if (!solicitante) {
+      return res.status(400).json({ msg: 'Debe indicar el parámetro "solicitante"' });
+    }
+    const propias = await ModeloAcceso.getBySolicitante(solicitante);
+    res.json(propias);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Proceso aparte (cron / endpoint manual) que expira solicitudes 'Aprobada'
+// cuya ventana horaria ya pasó sin que el técnico haya hecho check-in.
+const runExpiration = async (req, res, next) => {
+  try {
+    const expiradas = await ModeloAcceso.expireOverdue();
+    res.json({ msg: 'Proceso de expiración ejecutado', solicitudesExpiradas: expiradas });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createRequest,
   getPending,
   reviewRequest,
   checkIn,
   checkOut,
-  getActive
+  getActive,
+  getMine,
+  runExpiration
 };
