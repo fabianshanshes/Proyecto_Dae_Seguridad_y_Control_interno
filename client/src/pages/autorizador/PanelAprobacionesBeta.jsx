@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useState, useEffect } from 'react';
 
 export default function PanelAprobaciones() {
@@ -10,9 +10,9 @@ export default function PanelAprobaciones() {
     try {
       const response = await fetch('http://localhost:5000/api/requests/pending');
       if (!response.ok) throw new Error('Error al conectar con la base de datos');
-      
+
       const data = await response.json();
-      const pendientes = data.filter(s => s.estado === 'En revision');
+      const pendientes = data.filter((s) => s.estado === 'En revision');
       setSolicitudes(pendientes);
     } catch (err) {
       setError(err.message);
@@ -24,6 +24,7 @@ export default function PanelAprobaciones() {
   useEffect(() => {
     fetchSolicitudes();
   }, []);
+
   const handleDecision = async (id, decision) => {
     let condiciones_motivo = '';
 
@@ -37,20 +38,20 @@ export default function PanelAprobaciones() {
       }
     }
 
-    if (condiciones_motivo === null) return; 
+    if (condiciones_motivo === null) return;
 
     try {
       const response = await fetch(`http://localhost:5000/api/requests/${id}/review`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          estado: decision, 
-          condiciones: condiciones_motivo 
+        body: JSON.stringify({
+          estado: decision,
+          condiciones: condiciones_motivo
         })
       });
 
       if (!response.ok) throw new Error('Error al actualizar el estado');
-      
+
       fetchSolicitudes();
     } catch (err) {
       alert(`Error: ${err.message}`);
@@ -61,52 +62,61 @@ export default function PanelAprobaciones() {
   if (error) return <div className="text-red-400 bg-red-900/30 p-4 rounded border border-red-500">Error: {error}</div>;
 
   return (
-    <div className="max-w-5xl mx-auto bg-slate-900 text-white p-6 rounded-lg shadow-xl border border-slate-700">
-      <div className="mb-6 border-b border-slate-700 pb-4">
-        <h2 className="text-2xl font-bold text-emerald-400">Panel de Aprobación de Infraestructura</h2>
-        <p className="text-sm text-slate-400">Rol: Autorizador (Valeria) | Mostrando solo solicitudes "En revisión"</p>
+    <div className="max-w-6xl mx-auto rounded-[2rem] border border-slate-700 bg-slate-900/95 p-7 shadow-[0_40px_120px_rgba(15,23,42,0.35)]">
+      <div className="mb-6 rounded-[1.75rem] border border-slate-700 bg-slate-800/90 p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-3xl font-semibold text-white">Panel de aprobación</h2>
+            <p className="mt-2 text-sm text-slate-400">Rol: Autorizador | Mostrando solicitudes en revisión.</p>
+          </div>
+          <div className="rounded-full bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-200">
+            Pendientes: {solicitudes.length}
+          </div>
+        </div>
       </div>
 
       {solicitudes.length === 0 ? (
-        <div className="bg-slate-800 text-center p-8 rounded border border-slate-700 text-slate-400">
+        <div className="rounded-3xl border border-slate-700 bg-slate-800 p-8 text-center text-slate-400">
           No hay solicitudes pendientes de revisión.
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto rounded-[1.75rem] border border-slate-700 bg-slate-800/90 shadow-[0_20px_60px_rgba(15,23,42,0.2)]">
+          <table className="w-full min-w-[720px] text-left border-collapse">
             <thead>
-              <tr className="bg-slate-800 text-slate-300 text-sm border-b border-slate-700">
-                <th className="p-3">ID / Solicitante</th>
-                <th className="p-3">Motivo y Zona</th>
-                <th className="p-3">Fecha y Horario</th>
-                <th className="p-3 text-center">Decisión Administrativa</th>
+              <tr className="bg-slate-900 text-slate-300 text-sm uppercase tracking-[0.12em]">
+                <th className="p-4">ID / Solicitante</th>
+                <th className="p-4">Motivo y Zona</th>
+                <th className="p-4">Fecha y Horario</th>
+                <th className="p-4 text-center">Decisión</th>
               </tr>
             </thead>
             <tbody>
-              {solicitudes.map(s => (
-                <tr key={s.id} className="border-b border-slate-800 hover:bg-slate-800/50 transition-colors">
-                  <td className="p-3">
+              {solicitudes.map((s) => (
+                <tr key={s.id} className="border-t border-slate-700 transition hover:bg-slate-900/60">
+                  <td className="p-4">
                     <span className="text-xs font-mono text-slate-500 block">#{s.id}</span>
-                    <span className="font-semibold">{s.solicitante}</span>
+                    <span className="font-semibold text-white">{s.solicitante}</span>
                   </td>
-                  <td className="p-3 text-sm">
-                    <span className="block">{s.motivo}</span>
-                    <span className="text-blue-400 text-xs font-bold">{s.zona}</span>
+                  <td className="p-4 text-sm text-slate-300">
+                    <div className="mb-2">{s.motivo}</div>
+                    <div className="inline-flex items-center gap-2 rounded-full bg-slate-950/70 px-3 py-1 text-xs text-slate-300">
+                      Zona: {s.zona || 'No especificada'}
+                    </div>
                   </td>
-                  <td className="p-3 text-sm">
-                    <span className="block">{new Date(s.fecha).toLocaleDateString('es-CL')}</span>
-                    <span className="text-slate-400 text-xs">{s.hora_inicio} - {s.hora_fin}</span>
+                  <td className="p-4 text-sm text-slate-300">
+                    <div>{new Date(s.fecha).toLocaleDateString('es-CL')}</div>
+                    <div className="mt-1 text-slate-400">{s.hora_inicio} - {s.hora_fin}</div>
                   </td>
-                  <td className="p-3 flex flex-col sm:flex-row justify-center gap-2">
-                    <button 
+                  <td className="p-4 flex flex-col items-center justify-center gap-3 text-sm sm:flex-row">
+                    <button
                       onClick={() => handleDecision(s.id, 'Aprobada')}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-2 rounded font-medium transition-colors"
+                      className="rounded-3xl bg-accent px-4 py-2 text-white transition hover:bg-accent-600 shadow-sm"
                     >
                       ✓ Aprobar
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleDecision(s.id, 'Rechazada')}
-                      className="bg-rose-600 hover:bg-rose-700 text-white text-xs px-3 py-2 rounded font-medium transition-colors"
+                      className="rounded-3xl bg-rose-500 px-4 py-2 text-white transition hover:bg-rose-400 shadow-sm"
                     >
                       ✕ Rechazar
                     </button>

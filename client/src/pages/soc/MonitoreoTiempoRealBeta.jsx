@@ -93,12 +93,12 @@ export default function MonitoreoTiempoReal() {
   if (loading) return <div className="text-white">Conectando con cámaras y sensores...</div>;
 
   return (
-    <div className="max-w-5xl mx-auto bg-slate-900 text-white p-6 rounded-lg shadow-xl border-l-4 border-rose-600">
+    <div className="max-w-5xl mx-auto rounded-[2rem] border border-slate-700 bg-slate-900/95 p-7 shadow-[0_40px_120px_rgba(15,23,42,0.35)]">
       <div className="mb-6 flex justify-between items-center border-b border-slate-700 pb-4">
         <div>
-          <h2 className="text-2xl font-bold text-rose-500 flex items-center gap-2">
-            <span className="animate-pulse">🔴</span> SOC: Monitoreo en Tiempo Real
-          </h2>
+            <h2 className="text-2xl font-bold text-rose-500 flex items-center gap-2">
+              <span className="animate-pulse">🔴</span> SOC: Monitoreo en Tiempo Real
+            </h2>
           <p className="text-sm text-slate-400">Vigilancia de accesos en estado "En uso"</p>
         </div>
       </div>

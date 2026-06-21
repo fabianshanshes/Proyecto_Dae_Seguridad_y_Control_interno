@@ -24,7 +24,9 @@ export default function ControlGuardia() {
     }
   };
 
-  useEffect(() => { fetchSolicitudes(); }, []);
+  useEffect(() => {
+    fetchSolicitudes();
+  }, []);
 
   const handleCheckIn = async (id) => {
     const tieneCedula = window.confirm('¿El solicitante presentó su cédula de identidad física?');
