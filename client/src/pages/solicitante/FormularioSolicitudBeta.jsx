@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useState } from 'react';
 
 export default function FormularioSolicitud() {
@@ -47,15 +47,22 @@ export default function FormularioSolicitud() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-slate-900 text-white p-6 rounded-lg shadow-xl border border-slate-700">
-      <h2 className="text-2xl font-bold mb-2 text-blue-400">Generar Solicitud de Acceso</h2>
-      <p className="text-sm text-slate-400 mb-6">
-        Fase de Pruebas PMN: Omite el campo "Zona/Rack" para probar la Excepción 1 (Estado: Observada).
-      </p>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="max-w-2xl mx-auto rounded-[2rem] border border-slate-700 bg-slate-900/95 p-7 shadow-[0_40px_120px_rgba(15,23,42,0.35)] backdrop-blur-sm">
+      <div className="mb-6 space-y-3">
+        <span className="inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs uppercase tracking-[0.24em] text-accent">
+          📝 Solicitud de acceso
+        </span>
         <div>
-          <label className="block text-sm font-medium mb-1">Nombre del Solicitante</label>
+          <h2 className="text-3xl font-semibold text-white">Generar solicitud de acceso</h2>
+          <p className="mt-2 text-sm text-slate-400">
+            Completa los datos para enviar la solicitud al autorizador. En modo de prueba, deja "Zona / Rack" vacío si deseas forzar el estado Observada.
+          </p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label className="block text-sm font-medium text-slate-200 mb-2">Nombre del solicitante</label>
           <input
             type="text"
             name="solicitante"
@@ -63,103 +70,116 @@ export default function FormularioSolicitud() {
             onChange={handleChange}
             required
             placeholder="Ej: Rodrigo (Técnico Externo)"
-            className="w-full p-2.5 rounded bg-slate-800 border border-slate-600 focus:outline-none focus:border-blue-500"
+            className="w-full rounded-3xl border border-slate-700 bg-slate-800 px-4 py-3 text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Motivo del Ingreso</label>
+          <label className="block text-sm font-medium text-slate-200 mb-2">Motivo del ingreso</label>
           <textarea
             name="motivo"
             value={formData.motivo}
             onChange={handleChange}
             required
             placeholder="Ej: Reemplazo de módulo RAM defectuoso"
-            rows="2"
-            className="w-full p-2.5 rounded bg-slate-800 border border-slate-600 focus:outline-none focus:border-blue-500"
+            rows="3"
+            className="w-full rounded-3xl border border-slate-700 bg-slate-800 px-4 py-3 text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Zona / Rack Específico</label>
+          <label className="block text-sm font-medium text-slate-200 mb-2">Zona / Rack específico</label>
           <input
             type="text"
             name="zona"
             value={formData.zona}
             onChange={handleChange}
-            placeholder="Ej: Sala 2 - Rack B3 (Opcional para forzar excepción)"
-            className="w-full p-2.5 rounded bg-slate-800 border border-slate-600 focus:outline-none focus:border-blue-500"
+            placeholder="Ej: Sala 2 - Rack B3 (Opcional)"
+            className="w-full rounded-3xl border border-slate-700 bg-slate-800 px-4 py-3 text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid gap-4 md:grid-cols-3">
           <div>
-            <label className="block text-sm font-medium mb-1">Fecha</label>
+            <label className="block text-sm font-medium text-slate-200 mb-2">Fecha</label>
             <input
               type="date"
               name="fecha"
               value={formData.fecha}
               onChange={handleChange}
               required
-              className="w-full p-2.5 rounded bg-slate-800 border border-slate-600 focus:outline-none focus:border-blue-500"
+              className="w-full rounded-3xl border border-slate-700 bg-slate-800 px-4 py-3 text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Hora Inicio</label>
+            <label className="block text-sm font-medium text-slate-200 mb-2">Hora inicio</label>
             <input
               type="time"
               name="hora_inicio"
               value={formData.hora_inicio}
               onChange={handleChange}
               required
-              className="w-full p-2.5 rounded bg-slate-800 border border-slate-600 focus:outline-none focus:border-blue-500"
+              className="w-full rounded-3xl border border-slate-700 bg-slate-800 px-4 py-3 text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Hora Fin</label>
+            <label className="block text-sm font-medium text-slate-200 mb-2">Hora fin</label>
             <input
               type="time"
               name="hora_fin"
               value={formData.hora_fin}
               onChange={handleChange}
               required
-              className="w-full p-2.5 rounded bg-slate-800 border border-slate-600 focus:outline-none focus:border-blue-500"
+              className="w-full rounded-3xl border border-slate-700 bg-slate-800 px-4 py-3 text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
             />
           </div>
         </div>
 
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded transition-colors"
+          className="w-full rounded-full bg-accent px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-accent-600"
         >
-          Enviar Solicitud al Autorizador
+          Enviar solicitud al autorizador
         </button>
       </form>
 
-      {/* Panel de Feedback Técnico (Clave para mostrar el funcionamiento real) */}
       {resultado && (
-        <div className={`mt-6 p-4 rounded border ${
-          resultado.estado === 'Observada' 
-            ? 'bg-amber-950/40 border-amber-500 text-amber-200' 
-            : 'bg-emerald-950/40 border-emerald-500 text-emerald-200'
+        <div className={`mt-8 rounded-3xl border p-5 ${
+          resultado.estado === 'Observada'
+            ? 'border-amber-500/60 bg-amber-950/15 text-amber-100'
+            : 'border-emerald-500/60 bg-emerald-950/15 text-emerald-100'
         }`}>
-          <h3 className="font-bold text-lg mb-1">Respuesta del Servidor (Base de Datos):</h3>
-          <p className="text-sm mb-2">La solicitud fue procesada e insertada de manera exitosa en MariaDB.</p>
-          <ul className="text-xs space-y-1 bg-slate-950/60 p-3 rounded font-mono">
-            <li><strong>ID Generado:</strong> {resultado.id}</li>
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-700">
+            <div>
+              <h3 className="text-xl font-semibold">Respuesta recibida</h3>
+              <p className="text-sm text-slate-400">Solicitud procesada por el servidor y registrada en la base de datos.</p>
+            </div>
+            <span className="inline-flex rounded-full bg-slate-800 px-3 py-1 text-xs uppercase tracking-[0.28em] text-slate-300">
+              {resultado.estado}
+            </span>
+          </div>
+          <ul className="mt-4 space-y-2 rounded-2xl bg-slate-950/80 p-4 text-sm font-mono text-slate-200">
+            <li><strong>ID generado:</strong> {resultado.id}</li>
             <li><strong>Solicitante:</strong> {resultado.solicitante}</li>
-            <li><strong>Zona Asignada:</strong> {resultado.zona}</li>
-            <li><strong>Estado del Sistema:</strong> <span className={`px-2 py-0.5 rounded font-bold ${
-              resultado.estado === 'Observada' ? 'bg-amber-500 text-slate-950' : 'bg-blue-500 text-white'
-            }`}>{resultado.estado}</span></li>
+            <li><strong>Zona asignada:</strong> {resultado.zona || 'No asignada'}</li>
+            <li>
+              <strong>Estado del sistema:</strong>{' '}
+              <span className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                resultado.estado === 'Observada'
+                  ? 'bg-amber-500 text-slate-950'
+                  : 'bg-sky-500 text-white'
+              }`}>
+                {resultado.estado}
+              </span>
+            </li>
           </ul>
         </div>
       )}
 
       {error && (
-        <div className="mt-6 p-4 bg-red-950/40 border border-red-500 text-red-200 rounded">
-          <p className="font-bold">Error de Conexión:</p>
-          <p className="text-sm font-mono">{error}</p>
+        <div className="mt-8 rounded-3xl border border-red-500/50 bg-red-950/20 p-5 text-sm text-red-200">
+          <p className="font-semibold">Error de conexión:</p>
+          <p className="mt-2 font-mono">{error}</p>
         </div>
       )}
     </div>

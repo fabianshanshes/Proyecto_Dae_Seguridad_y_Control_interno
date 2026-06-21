@@ -164,3 +164,88 @@ export default function ControlGuardia() {
     </div>
   );
 }
+<<<<<<< Updated upstream
+=======
+
+        </div>
+      )}
+
+      {/* SECCIÓN 1: CONTROL DE ENTRADAS */}
+      <section className="rounded-[1.75rem] border border-slate-700 bg-slate-800/90 p-4">
+        <h3 className="text-xl font-bold text-sky-400 mb-4">
+          1. Control de Ingreso <span className="text-sm font-normal text-slate-400">(Cédula física + ventana horaria)</span>
+        </h3>
+
+        {ingresosPendientes.length === 0 ? (
+          <p className="text-slate-400 text-sm">No hay solicitudes aprobadas esperando ingreso.</p>
+        ) : (
+          <table className="w-full text-left">
+            <thead>
+              <tr className="text-slate-400 border-b border-slate-800 text-sm">
+                <th className="p-2">Solicitante</th>
+                <th className="p-2">Zona</th>
+                <th className="p-2">Horario autorizado</th>
+                <th className="p-2">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ingresosPendientes.map(s => (
+                <tr key={s.id} className="border-t border-slate-800">
+                  <td className="p-2 font-medium">{s.solicitante}</td>
+                  <td className="p-2 text-sm text-slate-300">{s.zona}</td>
+                  <td className="p-2 text-sm text-slate-400">{s.hora_inicio} - {s.hora_fin}</td>
+                  <td className="p-2">
+                    <button
+                      onClick={() => handleCheckIn(s.id)}
+                      className="bg-accent hover:bg-accent-600 px-4 py-1.5 rounded text-sm font-medium transition-colors text-white"
+                    >
+                      Registrar Ingreso
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
+
+      {/* SECCIÓN 2: CONTROL DE SALIDAS */}
+      <section className="rounded-[1.75rem] border border-slate-700 bg-slate-800/90 p-4">
+        <h3 className="text-xl font-bold text-emerald-400 mb-4">
+          2. Control de Salida <span className="text-sm font-normal text-slate-400">(Personal dentro del Data Center)</span>
+        </h3>
+
+        {visitasActivas.length === 0 ? (
+          <p className="text-slate-400 text-sm">No hay personal autorizado en las instalaciones en este momento.</p>
+        ) : (
+          <table className="w-full text-left">
+            <thead>
+              <tr className="text-slate-400 border-b border-slate-800 text-sm">
+                <th className="p-2">Técnico</th>
+                <th className="p-2">Zona</th>
+                <th className="p-2">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {visitasActivas.map(s => (
+                <tr key={s.id} className="border-t border-slate-800">
+                  <td className="p-2 font-medium">{s.solicitante}</td>
+                  <td className="p-2 text-sm text-slate-300">{s.zona}</td>
+                  <td className="p-2">
+                    <button
+                      onClick={() => handleCheckOut(s.id)}
+                      className="bg-accent hover:bg-accent-600 text-white text-sm px-4 py-1.5 rounded font-medium transition-colors shadow-sm"
+                    >
+                      🚪 Registrar Salida
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
+    </div>
+  );
+}
+>>>>>>> Stashed changes
